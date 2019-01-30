@@ -21,3 +21,5 @@ For adding expload overlay to your Unity game project:
 5. Make sure that Expload Desktop app is running with logged in user and this user has enough Expcoins to make transfer.
 6. Build And Run your game.
 7. Run transaction. Both Expload Desktop app and your game should show transaction confirmation dialogs.
+
+Feel free to ask me any question https://t.me/Vovabe https://github.com/vberezkin/
