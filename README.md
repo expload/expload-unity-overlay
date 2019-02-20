@@ -13,8 +13,9 @@ It has special `transparency` overlay color, that is clipped in [CefOverlay.shad
 For adding expload overlay to your Unity game project:
 1. Clone this repo.
 2. Copy `Assets\Cef`, `Assets\Editor`, `Assets\Materials`, `Assets\Plugins`, `Assets\Shaders` folders to Unity project.
-3. Add full screen RawImage UI to the top of scene for rendering Expload overlay.
-4. Set `CefOverlay` as Material and `Offscreen CEF` as Script.
+3. Add full screen RawImage UI to the canvas at the top of scene for rendering Expload overlay.
+4. Uncheck `Raycast Target` for allowing mouse clicks to go through RawImage to the game objects.
+5. Set `CefOverlay` as Material and `Offscreen CEF` as Script.
 
 ![](pics/RawImage.PNG)
 
