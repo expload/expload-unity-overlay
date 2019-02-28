@@ -6,7 +6,7 @@ using System.Security;
 using UnityEngine;
 using Xilium.CefGlue;
 
-namespace CefUnity
+namespace Expload
 {
     internal class OffscreenCEFClient : CefClient
     {
@@ -43,7 +43,7 @@ namespace CefUnity
             }
         }
 
-        private readonly CefMouseButtonType[] cefMouseButtons = {CefMouseButtonType.Left, CefMouseButtonType.Right, CefMouseButtonType.Middle};
+        private readonly CefMouseButtonType[] cefMouseButtons = { CefMouseButtonType.Left, CefMouseButtonType.Right, CefMouseButtonType.Middle };
 
         public void SendMouseClick(int x, int y, int unityButton, bool mouseUp)
         {
@@ -167,7 +167,8 @@ namespace CefUnity
                 {
                     lock (sPixelLock)
                     {
-                        if (browser != null) {
+                        if (browser != null)
+                        {
                             //  TODO Use dirtyRects
                             Marshal.Copy(buffer, this.client.sPixelBuffer, 0, this.client.sPixelBuffer.Length);
                         }

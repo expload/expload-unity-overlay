@@ -1,26 +1,23 @@
 # expload-unity-overlay-sample
 This sample shows how to use Expload platform overlay in Unity application.
 
-For now this overlay renders Expload transaction confirmation dialog.
+For now this overlay renders Expload dialogs (transaction confirmation for example).
 ## How it works
 It consists of CEF(Chromium Embedded Framework) instance that draws page that hosts by expload desktop app and located at http://localhost:8087/ui/overlay/ address by default.
 
-Page is drawn in Off-Screen Rendering mode to pixel buffer. [OffscreenCEF.cs](Cef/OffscreenCEF.cs), [OffscreenCEFClient.cs](Cef/OffscreenCEFClient.cs)
+Page is drawn in Off-Screen Rendering mode to pixel buffer. [OffscreenCEF.cs](Assets/Resources/Expload/OffscreenCEF.cs), [OffscreenCEFClient.cs](Assets/Resources/Expload/OffscreenCEFClient.cs)
 
-It has special `transparency` overlay color, that is clipped in [CefOverlay.shader](Assets/Shaders/CefOverlay.shader). For now it is Green (0,1,0,1).
+It has special `transparency` overlay color, that is clipped in [CefOverlay.shader](Assets/Resources/Expload/CefOverlay.shader). For now it is Green (0,1,0,1).
 
 ## Usage
 For adding expload overlay to your Unity game project:
-1. Clone this repo.
-2. Copy `Assets\Cef`, `Assets\Editor`, `Assets\Materials`, `Assets\Plugins`, `Assets\Shaders` folders to Unity project.
-3. Add full screen RawImage UI to the canvas at the top of scene for rendering Expload overlay.
-4. Uncheck `Raycast Target` for allowing mouse clicks to go through RawImage to the game objects.
-5. Set `CefOverlay` as Material and `Offscreen CEF` as Script.
+1. Add expload190228.unitypackage: `Assets` -> `Import package` -> Select expload190228.unitypackage
+2. Add empty object to your game initial scene and set `Expload Behaviour` as `Script`.
 
-![](pics/RawImage.PNG)
+![](pics/unity-screen.png)
 
-5. Make sure that Expload Desktop app is running with logged in user and this user has enough Expcoins to make transfer.
-6. Build And Run your game.
-7. Run transaction. Both Expload Desktop app and your game should show transaction confirmation dialogs.
+That's all.
+Now run `Expload Desktop` app and after that run your game.
+Please note: CEF does not work inside IDE, run game via `File` -> `Build And Run`
 
-Feel free to ask me any question https://t.me/Vovabe https://github.com/vberezkin/
+Feel free to ask me any question https://t.me/Vovabe

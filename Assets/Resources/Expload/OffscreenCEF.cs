@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Xilium.CefGlue;
 
-namespace CefUnity
+namespace Expload
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(MeshRenderer))]
@@ -30,6 +30,8 @@ namespace CefUnity
         {
             this.BrowserTexture = new Texture2D(this.windowWidth, this.windowHeight, TextureFormat.BGRA32, false);
             this.GetComponent<RawImage>().texture = this.BrowserTexture;
+            Material mat = Resources.Load<Material>("Expload/ExploadOverlay");
+            this.GetComponent<RawImage>().material = mat;
         }
 
         private void Start()
@@ -68,7 +70,7 @@ namespace CefUnity
                 LogSeverity = CefLogSeverity.Verbose,
                 LogFile = "cef.log",
                 WindowlessRenderingEnabled = true,
-                NoSandbox = true,
+                NoSandbox = true
             };
 
             // Start the browser process (a child process).
@@ -106,7 +108,7 @@ namespace CefUnity
             {
                 CefRuntime.DoMessageLoopWork();
                 if (!this.shouldQuit)
-                { 
+                {
                     this.cefClient.UpdateTexture(this.BrowserTexture);
                 }
                 yield return null;

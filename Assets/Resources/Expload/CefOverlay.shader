@@ -4,9 +4,15 @@
     {
         _MainTex ("Texture", 2D) = "white" {}
 		_OverlayColor("Overlay Color", Color) = (0,1,0,1)
+		_Transparency("Transparancy", Range(0.0, 1.0)) = 0.8
     }
     SubShader
     {
+			Tags { "Queue" = "Transparent" "RenderType" = "Transparent"}
+
+			ZWrite Off
+			Blend SrcAlpha OneMinusSrcAlpha
+
         Pass
         {
             CGPROGRAM
@@ -31,6 +37,7 @@
             sampler2D _MainTex;
             float4 _MainTex_ST;
 			float4 _OverlayColor;
+			float _Transparency;
 
             v2f vert (appdata v)
             {
@@ -42,10 +49,11 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-				fixed4 col = tex2D(_MainTex, i.uv);
-				clip(distance(col, _OverlayColor) > 0.003 ? 1 : -1);
-				return col;
-			}
+              fixed4 col = tex2D(_MainTex, i.uv);
+				      clip(distance(col, _OverlayColor) > 0.003 ? 1 : -1);
+					  col.a = _Transparency;
+				      return col;
+			      }
             ENDCG
         }
     }

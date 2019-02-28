@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CefOverlay
-  m_Shader: {fileID: 4800000, guid: 55ab6f619b0422741bfffff924514566, type: 3}
+  m_Name: ExploadOverlay
+  m_Shader: {fileID: 4800000, guid: ce5f097bd8c58204b8ec752e41015a2b, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
