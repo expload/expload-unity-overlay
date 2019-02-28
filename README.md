@@ -19,6 +19,8 @@ For adding expload overlay to your Unity game project:
 
 That's all.
 Now run `Expload Desktop` app and after that run your game.
-Please note: CEF does not work inside IDE, run game via `File` -> `Build And Run`
+
+
+**Please note**: CEF does not work inside IDE, run game via `File` -> `Build And Run`
 
 Feel free to ask me any question https://t.me/Vovabe
