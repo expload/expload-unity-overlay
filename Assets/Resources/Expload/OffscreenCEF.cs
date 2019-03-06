@@ -111,7 +111,7 @@ namespace Expload
                 {
                     this.cefClient.UpdateTexture(this.BrowserTexture);
                 }
-                yield return null;
+                yield return new WaitForEndOfFrame();
             }
         }
 
