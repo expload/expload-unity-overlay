@@ -16,7 +16,7 @@ namespace Expload
         private static readonly object sPixelLock = new object();
         private byte[] sPixelBuffer;
 
-        private CefBrowserHost sHost;
+        //private CefBrowserHost sHost;
 
         public OffscreenCEFClient(int windowWidth, int windowHeight, bool hideScrollbars = false)
         {
@@ -30,41 +30,44 @@ namespace Expload
 
         public void UpdateTexture(Texture2D pTexture)
         {
-            if (this.sHost != null)
-            {
-                lock (sPixelLock)
-                {
-                    if (this.sHost != null)
-                    {
-                        pTexture.LoadRawTextureData(this.sPixelBuffer);
-                        pTexture.Apply(false);
-                    }
-                }
-            }
+            Debug.LogFormat("UpdateTexture");
+            // if (this.sHost != null)
+            // {
+            //     lock (sPixelLock)
+            //     {
+            //         if (this.sHost != null)
+            //         {
+            //             pTexture.LoadRawTextureData(this.sPixelBuffer);
+            //             pTexture.Apply(false);
+            //         }
+            //     }
+            // }
         }
 
-        private readonly CefMouseButtonType[] cefMouseButtons = { CefMouseButtonType.Left, CefMouseButtonType.Right, CefMouseButtonType.Middle };
+        //private readonly CefMouseButtonType[] cefMouseButtons = { CefMouseButtonType.Left, CefMouseButtonType.Right, CefMouseButtonType.Middle };
 
         public void SendMouseClick(int x, int y, int unityButton, bool mouseUp)
         {
-            var cefButton = cefMouseButtons[unityButton];
-            this.sHost.SendMouseClickEvent(new CefMouseEvent(x, y, 0), cefButton, mouseUp, 1);
+            //var cefButton = cefMouseButtons[unityButton];
+            //this.sHost.SendMouseClickEvent(new CefMouseEvent(x, y, 0), cefButton, mouseUp, 1);
+            Debug.LogFormat("{0} {1} {2} {3}", x, y, unityButton, mouseUp);
         }
 
         public void SendKey(CefKeyEvent e)
         {
-            this.sHost.SendKeyEvent(e);
+            //this.sHost.SendKeyEvent(e);
+            Debug.LogFormat("SendKey");
         }
 
         public void Shutdown()
         {
-            if (this.sHost != null)
-            {
-                Debug.Log("Host Cleanup");
-                this.sHost.CloseBrowser(true);
-                this.sHost.Dispose();
-                this.sHost = null;
-            }
+            Debug.Log("Host Cleanup");
+            //if (this.sHost != null)
+            //{               
+            //    //this.sHost.CloseBrowser(true);
+            //    //this.sHost.Dispose();
+            //    //this.sHost = null;
+            //}
         }
 
         #region Interface
@@ -96,8 +99,8 @@ namespace Expload
 
             protected override void OnLoadStart(CefBrowser browser, CefFrame frame, CefTransitionType transitionType)
             {
-                if (browser != null)
-                    this.client.sHost = browser.GetHost();
+                //if (browser != null)
+                   //this.client.sHost = browser.GetHost();
 
                 if (frame.IsMain)
                     Debug.LogFormat("START: {0}", browser.GetMainFrame().Url);

@@ -53,37 +53,37 @@ namespace Expload
 
         private void StartCef()
         {
-            CefRuntime.Load();
+            //CefRuntime.Load();
 
-            var cefMainArgs = new CefMainArgs(new string[] { });
+            //var cefMainArgs = new CefMainArgs(new string[] { });
             var cefApp = new OffscreenCEFClient.OffscreenCEFApp();
 
             // This is where the code path diverges for child processes.
-            if (CefRuntime.ExecuteProcess(cefMainArgs, cefApp, IntPtr.Zero) != -1)
-                Debug.LogError("Could not start the secondary process.");
+            // if (CefRuntime.ExecuteProcess(cefMainArgs, cefApp, IntPtr.Zero) != -1)
+            //     Debug.LogError("Could not start the secondary process.");
 
-            var cefSettings = new CefSettings
-            {
-                //ExternalMessagePump = true,
-                MultiThreadedMessageLoop = false,
-                SingleProcess = true,
-                LogSeverity = CefLogSeverity.Verbose,
-                LogFile = "cef.log",
-                WindowlessRenderingEnabled = true,
-                NoSandbox = true
-            };
+            // var cefSettings = new CefSettings
+            // {
+            //     //ExternalMessagePump = true,
+            //     MultiThreadedMessageLoop = false,
+            //     SingleProcess = true,
+            //     LogSeverity = CefLogSeverity.Verbose,
+            //     LogFile = "cef.log",
+            //     WindowlessRenderingEnabled = true,
+            //     NoSandbox = true
+            // };
 
             // Start the browser process (a child process).
-            CefRuntime.Initialize(cefMainArgs, cefSettings, cefApp, IntPtr.Zero);
+            //CefRuntime.Initialize(cefMainArgs, cefSettings, cefApp, IntPtr.Zero);
 
             // Instruct CEF to not render to a window.
-            CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
-            cefWindowInfo.SetAsWindowless(IntPtr.Zero, false);
+            //CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
+            //cefWindowInfo.SetAsWindowless(IntPtr.Zero, false);
 
             // Settings for the browser window itself (e.g. enable JavaScript?).
-            CefBrowserSettings cefBrowserSettings = new CefBrowserSettings()
-            {
-            };
+            // CefBrowserSettings cefBrowserSettings = new CefBrowserSettings()
+            // {
+            // };
 
             Debug.Log("Start with window: " + this.windowWidth + ", " + this.windowHeight);
 
@@ -91,7 +91,7 @@ namespace Expload
             this.cefClient = new OffscreenCEFClient(this.windowWidth, this.windowHeight, this.hideScrollbars);
 
             // Start up the browser instance.
-            CefBrowserHost.CreateBrowser(cefWindowInfo, this.cefClient, cefBrowserSettings, string.IsNullOrEmpty(this.url) ? "http://www.google.com" : this.url);
+            //CefBrowserHost.CreateBrowser(cefWindowInfo, this.cefClient, cefBrowserSettings, string.IsNullOrEmpty(this.url) ? "http://www.google.com" : this.url);
         }
 
         private void Quit()
@@ -99,7 +99,7 @@ namespace Expload
             this.shouldQuit = true;
             this.StopAllCoroutines();
             this.cefClient.Shutdown();
-            CefRuntime.Shutdown();
+            //CefRuntime.Shutdown();
         }
 
         private IEnumerator MessagePump()
