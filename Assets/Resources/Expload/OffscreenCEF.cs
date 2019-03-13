@@ -118,16 +118,14 @@ namespace Expload
         void Update()
         {
             var p = Input.mousePosition;
-            for (int i = 0; i < 3; ++i)
+            int i = 0;  //  use only left mouse button
+            if (Input.GetMouseButtonDown(i))
             {
-                if (Input.GetMouseButtonDown(i))
-                {
-                    cefClient.SendMouseClick((int)p.x, windowHeight - (int)p.y, i, false);
-                }
-                if (Input.GetMouseButtonUp(i))
-                {
-                    cefClient.SendMouseClick((int)p.x, windowHeight - (int)p.y, i, true);
-                }
+                cefClient.SendMouseClick((int)p.x, windowHeight - (int)p.y, i, false);
+            }
+            if (Input.GetMouseButtonUp(i))
+            {
+                cefClient.SendMouseClick((int)p.x, windowHeight - (int)p.y, i, true);
             }
             foreach (char code in Input.inputString)
             {
