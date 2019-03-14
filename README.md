@@ -11,7 +11,7 @@ It has special `transparency` overlay color, that is clipped in [CefOverlay.shad
 
 ## Usage
 For adding expload overlay to your Unity game project:
-1. Download [expload.unitypackage](package/expload.unitypackage)
+1. Download [expload.unitypackage](https://github.com/expload/expload-unity-overlay-sample/releases)
 1. Add downloaded package expload.unitypackage: `Assets` -> `Import package` -> Select expload.unitypackage
 2. Add empty object to your game initial scene and set `Expload Behaviour` as `Script`.
 
