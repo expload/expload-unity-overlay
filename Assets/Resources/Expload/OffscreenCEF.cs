@@ -37,7 +37,6 @@ namespace Expload
         private void Start()
         {
             this.StartCef();
-            this.StartCoroutine(this.MessagePump());
             DontDestroyOnLoad(this.gameObject.transform.root.gameObject);
         }
 
@@ -102,16 +101,12 @@ namespace Expload
             CefRuntime.Shutdown();
         }
 
-        private IEnumerator MessagePump()
+        void FixedUpdate()
         {
-            while (!this.shouldQuit)
+            CefRuntime.DoMessageLoopWork();
+            if (!this.shouldQuit)
             {
-                CefRuntime.DoMessageLoopWork();
-                if (!this.shouldQuit)
-                {
-                    this.cefClient.UpdateTexture(this.BrowserTexture);
-                }
-                yield return null;
+                this.cefClient.UpdateTexture(this.BrowserTexture);
             }
         }
 
