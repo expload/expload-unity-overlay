@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ExploadOverlay
-  m_Shader: {fileID: 4800000, guid: ce5f097bd8c58204b8ec752e41015a2b, type: 3}
+  m_Shader: {fileID: 4800000, guid: 899d57a4c18b44d4da2e3fe5c31c9bcd, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -70,6 +70,7 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Transparency: 0.8
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:

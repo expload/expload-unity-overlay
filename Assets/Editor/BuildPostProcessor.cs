@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
@@ -8,11 +10,15 @@ namespace Expload.UnityEditor
 {
     public class BuildPostProcessor
     {
+        const string CefWindowsPluginDirectory = "/Cef/Windows";
+        const string CefMacOsPluginDirectory = "/Cef/MacOS";
+        const string CefGluePluginDirectory = "/Cefglue";
+
         [PostProcessBuild(1)]
         public static void OnPostprocessBuild(BuildTarget target, string pathToBuiltProject)
         {
             // Only Windows x86 and x86_64 atm.
-            if (target != BuildTarget.StandaloneWindows && target != BuildTarget.StandaloneWindows64)
+            if (target != BuildTarget.StandaloneOSX && target != BuildTarget.StandaloneWindows64)
                 return;
 
             ////////////////////////////////////////////////////////////////
@@ -20,22 +26,51 @@ namespace Expload.UnityEditor
             ////////////////////////////////////////////////////////////////
 
             // Get the source directory (Assets/Plugins or Assets/Plugins/x86 or Assets/Plugins/x86_64).
-            string srcPluginsFolder = string.Format("{0}/{1}", Application.dataPath, "Plugins");
+            string srcPluginsFolderPrefix = string.Format("{0}/{1}", Application.dataPath, "Plugins");
+
             switch (target)
             {
-                case BuildTarget.StandaloneWindows:
-                    if (Directory.Exists(srcPluginsFolder + "/x86"))
-                        srcPluginsFolder += "/x86";
+                case BuildTarget.StandaloneWindows64:
+                    PrepareWindows(pathToBuiltProject, srcPluginsFolderPrefix);
                     break;
 
-                case BuildTarget.StandaloneWindows64:
-                    if (Directory.Exists(srcPluginsFolder + "/x86_64"))
-                        srcPluginsFolder += "/x86_64";
+                case BuildTarget.StandaloneOSX:
+                    PrepareMacOs(pathToBuiltProject, srcPluginsFolderPrefix);
                     break;
 
                 default:
-                    break;
+                    throw new System.Exception("Unsupported paltform" + BuildTarget.StandaloneWindows);
             }
+        }
+
+        private static void PrepareMacOs(string pathToBuiltProject, string srcPluginsFolderPrefix)
+        {
+            string srcPluginsFolder = srcPluginsFolderPrefix + CefMacOsPluginDirectory;
+            string libcefPathDest = pathToBuiltProject + "/Contents/Frameworks/MonoEmbedRuntime/osx/libcef";
+
+            // Create /Contents/Frameworks/MonoEmbedRuntime/osx/ if not exists
+            FileInfo libcefFile = new FileInfo(libcefPathDest);
+            if (!libcefFile.Directory.Exists)
+                libcefFile.Directory.Create();
+
+            // Copy stared library
+            File.Copy(srcPluginsFolder + "/libcef", libcefPathDest, true);
+
+            DirectoryCopy(
+              srcPluginsFolder + "/Chromium Embedded Framework.framework",
+              pathToBuiltProject + "/Contents/Frameworks/Chromium Embedded Framework.framework",
+              true
+            );
+        }
+
+        private static void PrepareWindows(string pathToBuiltProject, string srcPluginsFolderPrefix)
+        {
+            string srcPluginsFolder = srcPluginsFolderPrefix + CefWindowsPluginDirectory;
+
+            if (!Directory.Exists(srcPluginsFolder))
+                throw new DirectoryNotFoundException(srcPluginsFolder + " not found!");
+
+            // Debug.Log("pathToBuiltProject = " + pathToBuiltProject);
 
             // Get the destination directory (<BUILT_EXE_PATH>/<EXE_NAME>_Data/Plugins).
             int splitIndex = pathToBuiltProject.LastIndexOf('/');
@@ -50,14 +85,22 @@ namespace Expload.UnityEditor
             var srcPluginsFolderFiles = srcPluginsFolderInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly)
                                                             .Where(fi => !fi.Name.EndsWith(".meta") && !fi.Name.EndsWith(".dll") &&
                                                                          !fi.Name.EndsWith(".pdb") && !fi.Name.EndsWith(".lib") &&
-                                                                         !fi.Name.EndsWith(".mdb") && !fi.Name.EndsWith(".xml"));
+                                                                         !fi.Name.EndsWith(".mdb") && !fi.Name.EndsWith(".xml") &&
+                                                                         !fi.Name.EndsWith(".DS_Store"));
+
             var srcPluginsFolderDirectories = srcPluginsFolderInfo.GetDirectories();
 
             // Copy selected files and sub-directories.
             foreach (var dir in srcPluginsFolderDirectories)
+            {
+                Debug.Log("Copy " + dir.FullName + " to " + string.Format("{0}/{1}", buildPluginsPathInfo.FullName, dir.Name));
                 DirectoryCopy(dir.FullName, string.Format("{0}/{1}", buildPluginsPathInfo.FullName, dir.Name), true);
+            }
             foreach (var file in srcPluginsFolderFiles)
+            {
+                Debug.Log("Copy " + file.FullName + " to " + string.Format("{0}/{1}", buildPluginsPathInfo.FullName, file.Name));
                 File.Copy(file.FullName, string.Format("{0}/{1}", buildPluginsPathInfo.FullName, file.Name), false);
+            }
         }
 
         private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
