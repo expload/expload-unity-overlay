@@ -12,8 +12,8 @@ namespace Expload
     {
         private readonly OffscreenLoadHandler _loadHandler;
         private readonly OffscreenRenderHandler _renderHandler;
-
         private static readonly object sPixelLock = new object();
+
         private byte[] sPixelBuffer;
 
         private CefBrowserHost sHost;
@@ -30,16 +30,13 @@ namespace Expload
 
         public void UpdateTexture(Texture2D pTexture)
         {
-            if (this.sHost != null)
+            lock (sPixelLock)
             {
-                lock (sPixelLock)
-                {
-                    if (this.sHost != null)
-                    {
-                        pTexture.LoadRawTextureData(this.sPixelBuffer);
-                        pTexture.Apply(false);
-                    }
-                }
+                if (this.sHost == null)
+                  return;
+
+                pTexture.LoadRawTextureData(this.sPixelBuffer);
+                pTexture.Apply(false);
             }
         }
 
@@ -47,24 +44,32 @@ namespace Expload
 
         public void SendMouseClick(int x, int y, int unityButton, bool mouseUp)
         {
+            if (this.sHost == null)
+                return;
+
             var cefButton = cefMouseButtons[unityButton];
             this.sHost.SendMouseClickEvent(new CefMouseEvent(x, y, 0), cefButton, mouseUp, 1);
         }
 
         public void SendKey(CefKeyEvent e)
         {
+            if (this.sHost == null)
+                return;
+
             this.sHost.SendKeyEvent(e);
         }
 
+        [SecurityCritical]
         public void Shutdown()
         {
-            if (this.sHost != null)
-            {
-                Debug.Log("Host Cleanup");
-                this.sHost.CloseBrowser(true);
-                this.sHost.Dispose();
-                this.sHost = null;
-            }
+            if (this.sHost == null)
+                return;
+
+            Debug.Log("Host Cleanup");
+            var host = this.sHost;
+            this.sHost = null;
+            host.CloseBrowser(false);
+            host.Dispose();
         }
 
         #region Interface

@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections;
+using System.Security;
 using UnityEngine;
 using UnityEngine.UI;
 using Xilium.CefGlue;
+using System.Threading;
 
 namespace Expload
 {
@@ -28,6 +29,9 @@ namespace Expload
 
         private void Awake()
         {
+            if (shouldQuit)
+                return;
+
             this.BrowserTexture = new Texture2D(this.windowWidth, this.windowHeight, TextureFormat.BGRA32, false);
             this.GetComponent<RawImage>().texture = this.BrowserTexture;
             Material mat = Resources.Load<Material>("Expload/ExploadOverlay");
@@ -40,12 +44,12 @@ namespace Expload
             DontDestroyOnLoad(this.gameObject.transform.root.gameObject);
         }
 
-        private void OnDestroy()
+        void OnDestroy()
         {
             this.Quit();
         }
 
-        private void OnApplicationQuit()
+        void OnApplicationQuit()
         {
             this.Quit();
         }
@@ -93,25 +97,37 @@ namespace Expload
             CefBrowserHost.CreateBrowser(cefWindowInfo, this.cefClient, cefBrowserSettings, string.IsNullOrEmpty(this.url) ? "http://www.google.com" : this.url);
         }
 
+        static Thread mainThread = Thread.CurrentThread;
+
+        [SecurityCritical]
         private void Quit()
         {
+            if (this.shouldQuit)
+                return;
+
+            Debug.Log("Shutdown CEF (mainThread = " + (mainThread == Thread.CurrentThread) + ")");
             this.shouldQuit = true;
-            this.StopAllCoroutines();
             this.cefClient.Shutdown();
+            this.StopAllCoroutines();
+            Debug.Log("Before CEF shutdown");
             CefRuntime.Shutdown();
+            Debug.Log("CEF shuttdown successful");
         }
 
         void FixedUpdate()
         {
-            CefRuntime.DoMessageLoopWork();
             if (!this.shouldQuit)
             {
+                CefRuntime.DoMessageLoopWork();
                 this.cefClient.UpdateTexture(this.BrowserTexture);
             }
         }
 
         void Update()
         {
+            if (shouldQuit)
+                return;
+
             var p = Input.mousePosition;
             int i = 0;  //  use only left mouse button
             if (Input.GetMouseButtonDown(i))
