@@ -1,4 +1,7 @@
 # expload-unity-overlay-sample
+This project is based on https://github.com/aleab/cef-unity-sample
+
+## Overview
 This sample shows how to use Expload platform overlay in Unity application.
 
 For now this overlay renders Expload dialogs (transaction confirmation for example).
@@ -22,5 +25,3 @@ Now run `Expload Desktop` app and after that run your game.
 
 
 **Please note**: CEF does not work inside IDE, run game via `File` -> `Build And Run`
-
-Feel free to ask me any question https://t.me/Vovabe
