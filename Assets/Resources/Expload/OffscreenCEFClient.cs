@@ -19,11 +19,13 @@ namespace Expload
         private byte[] sPopupPixelBufer;
         private CefRectangle _popupSize;
         private bool _popupShow;
+        private Texture2D _texture;
 
         private CefBrowserHost sHost;
 
-        public OffscreenCEFClient(int windowWidth, int windowHeight, bool hideScrollbars = false)
+        public OffscreenCEFClient(int windowWidth, int windowHeight, bool hideScrollbars, Texture2D texture)
         {
+            this._texture = texture;
             this._windowWidth = windowWidth;
             this._windowHeight = windowHeight;
             this._loadHandler = new OffscreenLoadHandler(this, hideScrollbars);
@@ -34,7 +36,7 @@ namespace Expload
             Debug.Log("Constructed Offscreen Client");
         }
 
-        public void UpdateTexture(Texture2D pTexture)
+        private void UpdateTexture()
         {
             if (this.sHost == null)
               return;
@@ -54,8 +56,8 @@ namespace Expload
                 }
             }
 
-            pTexture.LoadRawTextureData(buffer);
-            pTexture.Apply(false);
+            _texture.LoadRawTextureData(buffer);
+            _texture.Apply(false);
         }
 
         public void SendMouseMove(CefMouseEvent e)
@@ -195,6 +197,7 @@ namespace Expload
             protected override void OnPopupShow(CefBrowser browser, bool show)
             {
                 client._popupShow = show;
+                client.UpdateTexture();
             }
 
             protected override void OnPopupSize(CefBrowser browser, CefRectangle rect)
@@ -216,8 +219,8 @@ namespace Expload
                     targetBuffer = client.sPopupPixelBufer;
                 }
 
-
                 Marshal.Copy(buffer, targetBuffer, 0, targetBuffer.Length);
+                client.UpdateTexture();
             }
 
             protected override bool GetScreenInfo(CefBrowser browser, CefScreenInfo screenInfo)

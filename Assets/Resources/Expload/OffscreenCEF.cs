@@ -13,8 +13,7 @@ namespace Expload
     public class OffscreenCEF : MonoBehaviour
     {
         [SerializeField]
-        private string url = "https://fomkin.org/select.html";
-        //private string url = "http://localhost:8087/ui/overlay/";
+        private string url = "http://localhost:8087/ui/overlay/";
 
         [Space]
         [SerializeField]
@@ -48,6 +47,7 @@ namespace Expload
             {
                 var ev = new CefKeyEvent();
                 ev.WindowsKeyCode = charCode;
+                ev.Character = charCode;
                 ev.EventType = CefKeyEventType.KeyDown;
                 cefClient.SendKey(ev);
                 ev.EventType = CefKeyEventType.Char;
@@ -106,7 +106,12 @@ namespace Expload
             Debug.Log("Start with window: " + this.windowWidth + ", " + this.windowHeight);
 
             // Initialize some of the custom interactions with the browser process.
-            this.cefClient = new OffscreenCEFClient(this.windowWidth, this.windowHeight, this.hideScrollbars);
+            this.cefClient = new OffscreenCEFClient(
+                this.windowWidth,
+                this.windowHeight,
+                this.hideScrollbars,
+                this.BrowserTexture
+            );
 
             // Start up the browser instance.
             CefBrowserHost.CreateBrowser(cefWindowInfo, this.cefClient, cefBrowserSettings, string.IsNullOrEmpty(this.url) ? "http://www.google.com" : this.url);
@@ -134,7 +139,6 @@ namespace Expload
             if (!this.shouldQuit)
             {
                 CefRuntime.DoMessageLoopWork();
-                this.cefClient.UpdateTexture(this.BrowserTexture);
             }
         }
 
@@ -186,6 +190,6 @@ namespace Expload
             //}
         }
 
-        #endif
+#endif
     }
 }
