@@ -12,16 +12,22 @@ namespace Expload
     {
         private readonly OffscreenLoadHandler _loadHandler;
         private readonly OffscreenRenderHandler _renderHandler;
-        private readonly object sPixelLock = new object();
+        private readonly int _windowWidth;
+        private readonly int _windowHeight;
 
         private byte[] sPixelBuffer;
+        private byte[] sPopupPixelBufer;
+        private CefRectangle _popupSize;
+        private bool _popupShow;
 
         private CefBrowserHost sHost;
 
         public OffscreenCEFClient(int windowWidth, int windowHeight, bool hideScrollbars = false)
         {
+            this._windowWidth = windowWidth;
+            this._windowHeight = windowHeight;
             this._loadHandler = new OffscreenLoadHandler(this, hideScrollbars);
-            this._renderHandler = new OffscreenRenderHandler(windowWidth, windowHeight, this);
+            this._renderHandler = new OffscreenRenderHandler(this);
 
             this.sPixelBuffer = new byte[windowWidth * windowHeight * 4];
 
@@ -30,14 +36,26 @@ namespace Expload
 
         public void UpdateTexture(Texture2D pTexture)
         {
-            lock (sPixelLock)
-            {
-                if (this.sHost == null)
-                  return;
+            if (this.sHost == null)
+              return;
+              
+            byte[] buffer = sPixelBuffer;
 
-                pTexture.LoadRawTextureData(this.sPixelBuffer);
-                pTexture.Apply(false);
+            if (_popupShow && sPopupPixelBufer != null) {
+                // Clone view buffer
+                buffer = new byte[sPixelBuffer.Length];
+                sPixelBuffer.CopyTo(buffer, 0);
+                // Copy subrect of popup
+                for (int y = 0; y < _popupSize.Height; y++)
+                {
+                    int sourceOffset = _popupSize.Width * y * 4;
+                    int targetOffset = (_popupSize.Y + y) * _windowWidth * 4 + _popupSize.X;
+                    Array.Copy(sPopupPixelBufer, sourceOffset, buffer, targetOffset, _popupSize.Width * 4);
+                }
             }
+
+            pTexture.LoadRawTextureData(buffer);
+            pTexture.Apply(false);
         }
 
         public void SendMouseMove(CefMouseEvent e)
@@ -88,6 +106,15 @@ namespace Expload
             return this._loadHandler;
         }
 
+        private void AjustPopupBuffer(int width, int height)
+        {
+            int size = width * height * 4;
+            // Reallocate popup buffer if nessasery
+            if (sPopupPixelBufer == null || sPopupPixelBufer.Length != size)
+                sPopupPixelBufer = new byte[size];
+        }
+
+
         #endregion Interface
 
         #region Handlers
@@ -132,19 +159,15 @@ namespace Expload
                                   "head.appendChild(style);";
                 frame.ExecuteJavaScript(jsScript, string.Empty, 107);
             }
+
         }
 
         internal class OffscreenRenderHandler : CefRenderHandler
         {
             private OffscreenCEFClient client;
 
-            private readonly int _windowWidth;
-            private readonly int _windowHeight;
-
-            public OffscreenRenderHandler(int windowWidth, int windowHeight, OffscreenCEFClient client)
+            public OffscreenRenderHandler(OffscreenCEFClient client)
             {
-                this._windowWidth = windowWidth;
-                this._windowHeight = windowHeight;
                 this.client = client;
             }
 
@@ -164,38 +187,37 @@ namespace Expload
             {
                 rect.X = 0;
                 rect.Y = 0;
-                rect.Width = this._windowWidth;
-                rect.Height = this._windowHeight;
+                rect.Width = client._windowWidth;
+                rect.Height = client._windowHeight;
                 return true;
             }
 
             protected override void OnPopupShow(CefBrowser browser, bool show)
             {
-                base.OnPopupShow(browser, show);
+                client._popupShow = show;
             }
 
-//            private int drawCount = 0;
+            protected override void OnPopupSize(CefBrowser browser, CefRectangle rect)
+            {
+                client._popupSize = rect;
+                client.AjustPopupBuffer(rect.Width, rect.Height);
+            }
 
             [SecurityCritical]
             protected override void OnPaint(CefBrowser browser, CefPaintElementType type, CefRectangle[] dirtyRects, IntPtr buffer, int width, int height)
             {
-                //Debug.Log("drawCount=" + drawCount);
-                //drawCount++;
-                //if (type == CefPaintElementType.Popup)
-                //{
-                //    Debug.Log(dirtyRects.ToString());
-                //    Debug.Log("w="+ width + ",h="+height);
-                //    Debug.Log(dirtyRects.ToString());
-                //    return;
-                //}
-                if (browser != null)
+                if (browser == null)
+                    return;
+
+                byte[] targetBuffer = client.sPixelBuffer;
+                if (type == CefPaintElementType.Popup)
                 {
-                    lock (this.client.sPixelLock)
-                    {
-                        //  TODO Use dirtyRects
-                        Marshal.Copy(buffer, this.client.sPixelBuffer, 0, this.client.sPixelBuffer.Length);
-                    }
+                    client.AjustPopupBuffer(width, height);
+                    targetBuffer = client.sPopupPixelBufer;
                 }
+
+
+                Marshal.Copy(buffer, targetBuffer, 0, targetBuffer.Length);
             }
 
             protected override bool GetScreenInfo(CefBrowser browser, CefScreenInfo screenInfo)
@@ -204,10 +226,6 @@ namespace Expload
             }
 
             protected override void OnCursorChange(CefBrowser browser, IntPtr cursorHandle, CefCursorType type, CefCursorInfo customCursorInfo)
-            {
-            }
-
-            protected override void OnPopupSize(CefBrowser browser, CefRectangle rect)
             {
             }
 
