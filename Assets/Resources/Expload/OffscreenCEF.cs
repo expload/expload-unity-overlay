@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Xilium.CefGlue;
 using System.Threading;
+using UnityEngine.Experimental.Input;
 
 namespace Expload
 {
@@ -41,6 +42,19 @@ namespace Expload
         private void Start()
         {
             this.StartCef();
+
+            Keyboard.current.onTextInput += (char charCode) =>
+            {
+                var ev = new CefKeyEvent();
+                ev.WindowsKeyCode = charCode;
+                ev.EventType = CefKeyEventType.KeyDown;
+                cefClient.SendKey(ev);
+                ev.EventType = CefKeyEventType.Char;
+                cefClient.SendKey(ev);
+                ev.EventType = CefKeyEventType.KeyUp;
+                cefClient.SendKey(ev);
+            };
+
             DontDestroyOnLoad(this.gameObject.transform.root.gameObject);
         }
 
@@ -123,6 +137,10 @@ namespace Expload
             }
         }
 
+        private Vector3 prevMousePos;
+
+        //private readonly CefMouseButtonType[] cefMouseButtons = { CefMouseButtonType.Left, CefMouseButtonType.Right, CefMouseButtonType.Middle };
+
         void Update()
         {
             if (shouldQuit)
@@ -130,26 +148,43 @@ namespace Expload
 
             var p = Input.mousePosition;
             int i = 0;  //  use only left mouse button
+
+            if (!prevMousePos.Equals(p))
+            {
+                var e = new CefMouseEvent {
+                    X = (int) p.x, 
+                    Y = windowHeight - (int) p.y,
+                    Modifiers = Input.GetMouseButtonDown(i) ? CefEventFlags.LeftMouseButton : 0
+                };
+
+                cefClient.SendMouseMove(e);
+                prevMousePos = p;
+            }
             if (Input.GetMouseButtonDown(i))
             {
-                cefClient.SendMouseClick((int)p.x, windowHeight - (int)p.y, i, false);
+                cefClient.SendMouseClick((int)p.x, windowHeight - (int)p.y, CefMouseButtonType.Left, false);
             }
             if (Input.GetMouseButtonUp(i))
             {
-                cefClient.SendMouseClick((int)p.x, windowHeight - (int)p.y, i, true);
+                cefClient.SendMouseClick((int)p.x, windowHeight - (int)p.y, CefMouseButtonType.Left, true);
             }
-            foreach (char code in Input.inputString)
-            {
-                var ev = new CefKeyEvent();
-                ev.WindowsKeyCode = code;
-                ev.EventType = CefKeyEventType.KeyDown;
-                cefClient.SendKey(ev);
-                ev.EventType = CefKeyEventType.Char;
-                cefClient.SendKey(ev);
-                ev.EventType = CefKeyEventType.KeyUp;
-                cefClient.SendKey(ev);
-            }
+
+            //foreach (char code in Input.inputString)
+            //{
+            //    var ev = new CefKeyEvent
+            //    {
+            //        WindowsKeyCode = code,
+            //        NativeKeyCode = code,
+            //        EventType = CefKeyEventType.KeyDown
+            //    };
+            //    cefClient.SendKey(ev);
+            //    ev.EventType = CefKeyEventType.Char;
+            //    cefClient.SendKey(ev);
+            //    ev.EventType = CefKeyEventType.KeyUp;
+            //    cefClient.SendKey(ev);
+            //}
         }
-#endif
+
+        #endif
     }
 }

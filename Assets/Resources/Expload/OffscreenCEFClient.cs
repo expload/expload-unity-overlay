@@ -12,7 +12,7 @@ namespace Expload
     {
         private readonly OffscreenLoadHandler _loadHandler;
         private readonly OffscreenRenderHandler _renderHandler;
-        private static readonly object sPixelLock = new object();
+        private readonly object sPixelLock = new object();
 
         private byte[] sPixelBuffer;
 
@@ -40,22 +40,26 @@ namespace Expload
             }
         }
 
-        private readonly CefMouseButtonType[] cefMouseButtons = { CefMouseButtonType.Left, CefMouseButtonType.Right, CefMouseButtonType.Middle };
-
-        public void SendMouseClick(int x, int y, int unityButton, bool mouseUp)
+        public void SendMouseMove(CefMouseEvent e)
         {
             if (this.sHost == null)
                 return;
 
-            var cefButton = cefMouseButtons[unityButton];
-            this.sHost.SendMouseClickEvent(new CefMouseEvent(x, y, 0), cefButton, mouseUp, 1);
+            this.sHost.SendMouseMoveEvent(e, false);
+        }
+
+        public void SendMouseClick(int x, int y, CefMouseButtonType button, bool mouseUp)
+        {
+            if (this.sHost == null)
+                return;
+
+            this.sHost.SendMouseClickEvent(new CefMouseEvent(x, y, 0), button, mouseUp, 1);
         }
 
         public void SendKey(CefKeyEvent e)
         {
             if (this.sHost == null)
                 return;
-
             this.sHost.SendKeyEvent(e);
         }
 
@@ -165,18 +169,31 @@ namespace Expload
                 return true;
             }
 
+            protected override void OnPopupShow(CefBrowser browser, bool show)
+            {
+                base.OnPopupShow(browser, show);
+            }
+
+//            private int drawCount = 0;
+
             [SecurityCritical]
             protected override void OnPaint(CefBrowser browser, CefPaintElementType type, CefRectangle[] dirtyRects, IntPtr buffer, int width, int height)
             {
+                //Debug.Log("drawCount=" + drawCount);
+                //drawCount++;
+                //if (type == CefPaintElementType.Popup)
+                //{
+                //    Debug.Log(dirtyRects.ToString());
+                //    Debug.Log("w="+ width + ",h="+height);
+                //    Debug.Log(dirtyRects.ToString());
+                //    return;
+                //}
                 if (browser != null)
                 {
-                    lock (sPixelLock)
+                    lock (this.client.sPixelLock)
                     {
-                        if (browser != null)
-                        {
-                            //  TODO Use dirtyRects
-                            Marshal.Copy(buffer, this.client.sPixelBuffer, 0, this.client.sPixelBuffer.Length);
-                        }
+                        //  TODO Use dirtyRects
+                        Marshal.Copy(buffer, this.client.sPixelBuffer, 0, this.client.sPixelBuffer.Length);
                     }
                 }
             }
