@@ -141,6 +141,14 @@ namespace Expload
                     Debug.LogFormat("START: {0}", browser.GetMainFrame().Url);
             }
 
+            protected override void OnLoadError(CefBrowser browser, CefFrame frame, CefErrorCode errorCode, string errorText, string failedUrl)
+            {
+                if (frame.IsMain)
+                {
+                    Debug.LogFormat("ERROR: {0}, {1}, {2}", errorCode, errorText, failedUrl);
+                }
+            }
+
             protected override void OnLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode)
             {
                 if (frame.IsMain)
