@@ -34,6 +34,16 @@ namespace Expload
                 return;
 
             this.BrowserTexture = new Texture2D(this.windowWidth, this.windowHeight, TextureFormat.BGRA32, false);
+            var fillColorArray = this.BrowserTexture.GetPixels32();
+
+            for (var i = 0; i < fillColorArray.Length; ++i)
+            {
+                fillColorArray[i] = new Color32(0, 255, 0, 255);
+            }
+
+            this.BrowserTexture.SetPixels32(fillColorArray);
+            this.BrowserTexture.Apply();
+
             this.GetComponent<RawImage>().texture = this.BrowserTexture;
             Material mat = Resources.Load<Material>("Expload/ExploadOverlay");
             this.GetComponent<RawImage>().material = mat;
