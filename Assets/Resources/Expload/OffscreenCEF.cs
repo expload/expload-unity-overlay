@@ -102,7 +102,8 @@ namespace Expload
                 this.windowWidth,
                 this.windowHeight,
                 this.hideScrollbars,
-                this.BrowserTexture
+                this.BrowserTexture,
+                this
             );
 
             // Start up the browser instance.
