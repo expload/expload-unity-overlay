@@ -26,7 +26,7 @@ public class ExploadBehaviour : MonoBehaviour
             raw_image.GetComponent<RectTransform>().sizeDelta = new Vector2(Screen.width, Screen.height);
             raw_image.GetComponent<RectTransform>().offsetMin = new Vector2(0, 0);
             raw_image.GetComponent<RectTransform>().offsetMax = new Vector2(0, 0);
-            raw_image.GetComponent<RawImage>().color = new Color(1, 1, 1, 0.5f);
+            raw_image.GetComponent<RawImage>().color = new Color(1, 1, 1, 1);
             raw_image.AddComponent<Expload.OffscreenCEF>();
         }
 #endif

@@ -13,13 +13,13 @@ namespace Expload
     public class OffscreenCEF : MonoBehaviour
     {
         [SerializeField]
-        private string url = "http://localhost:8087/ui/overlay/";
+        private string url = "http://localhost:3000";//"http://localhost:8087/ui/overlay/";
 
         [Space]
         [SerializeField]
         private bool hideScrollbars = true;
 
-#if true// !UNITY_EDITOR
+#if !UNITY_EDITOR
         private bool shouldQuit = false;
         private OffscreenCEFClient cefClient;
 
@@ -38,7 +38,7 @@ namespace Expload
 
             for (var i = 0; i < fillColorArray.Length; ++i)
             {
-                fillColorArray[i] = new Color32(0, 255, 0, 255);
+                fillColorArray[i] = new Color32(0, 0, 0, 0);
             }
 
             this.BrowserTexture.SetPixels32(fillColorArray);
@@ -98,7 +98,7 @@ namespace Expload
 
             // Instruct CEF to not render to a window.
             CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
-            cefWindowInfo.SetAsWindowless(IntPtr.Zero, false);
+            cefWindowInfo.SetAsWindowless(IntPtr.Zero, true);
 
             // Settings for the browser window itself (e.g. enable JavaScript?).
             CefBrowserSettings cefBrowserSettings = new CefBrowserSettings()
