@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Xilium.CefGlue;
 using System.Threading;
-using UnityEngine.Experimental.Input;
+using System.IO;
 
 namespace Expload
 {
@@ -34,6 +34,16 @@ namespace Expload
                 return;
 
             this.BrowserTexture = new Texture2D(this.windowWidth, this.windowHeight, TextureFormat.BGRA32, false);
+            var fillColorArray = this.BrowserTexture.GetPixels32();
+
+            for (var i = 0; i < fillColorArray.Length; ++i)
+            {
+                fillColorArray[i] = new Color32(0, 0, 0, 0);
+            }
+
+            this.BrowserTexture.SetPixels32(fillColorArray);
+            this.BrowserTexture.Apply();
+
             this.GetComponent<RawImage>().texture = this.BrowserTexture;
             Material mat = Resources.Load<Material>("Expload/ExploadOverlay");
             this.GetComponent<RawImage>().material = mat;
@@ -42,19 +52,6 @@ namespace Expload
         private void Start()
         {
             this.StartCef();
-
-            Keyboard.current.onTextInput += (char charCode) =>
-            {
-                var ev = new CefKeyEvent();
-                ev.WindowsKeyCode = charCode;
-                ev.Character = charCode;
-                ev.EventType = CefKeyEventType.KeyDown;
-                cefClient.SendKey(ev);
-                ev.EventType = CefKeyEventType.Char;
-                cefClient.SendKey(ev);
-                ev.EventType = CefKeyEventType.KeyUp;
-                cefClient.SendKey(ev);
-            };
 
             DontDestroyOnLoad(this.gameObject.transform.root.gameObject);
         }
@@ -71,7 +68,12 @@ namespace Expload
 
         private void StartCef()
         {
+#if UNITY_EDITOR
+            CefRuntime.Load(Path.Combine(Application.dataPath, "Plugins", "Cef", "Windows"));
+#else
             CefRuntime.Load();
+#endif
+
 
             var cefMainArgs = new CefMainArgs(new string[] { });
             var cefApp = new OffscreenCEFClient.OffscreenCEFApp();
@@ -96,7 +98,7 @@ namespace Expload
 
             // Instruct CEF to not render to a window.
             CefWindowInfo cefWindowInfo = CefWindowInfo.Create();
-            cefWindowInfo.SetAsWindowless(IntPtr.Zero, false);
+            cefWindowInfo.SetAsWindowless(IntPtr.Zero, true);
 
             // Settings for the browser window itself (e.g. enable JavaScript?).
             CefBrowserSettings cefBrowserSettings = new CefBrowserSettings()
@@ -110,7 +112,8 @@ namespace Expload
                 this.windowWidth,
                 this.windowHeight,
                 this.hideScrollbars,
-                this.BrowserTexture
+                this.BrowserTexture,
+                this
             );
 
             // Start up the browser instance.
@@ -157,8 +160,8 @@ namespace Expload
             if (!prevMousePos.Equals(p))
             {
                 var e = new CefMouseEvent {
-                    X = (int) p.x, 
-                    Y = windowHeight - (int) p.y,
+                    X = (int)p.x,
+                    Y = windowHeight - (int)p.y,
                     Modifiers = Input.GetMouseButtonDown(i) ? CefEventFlags.LeftMouseButton : 0
                 };
 
@@ -190,6 +193,37 @@ namespace Expload
             //}
         }
 
+        private void OnGUI()
+        {
+            Event e = Event.current;
+            if (e.isKey)
+            {
+                var ev = new CefKeyEvent();
+                
+                //ev.Character = e.character;
+                ev.WindowsKeyCode = (int)e.keyCode;
+                ev.NativeKeyCode = (int)e.keyCode;
+                ev.Modifiers =
+                    (e.modifiers.HasFlag(EventModifiers.CapsLock) ? CefEventFlags.CapsLockOn  : 0) |
+                    (e.modifiers.HasFlag(EventModifiers.Control)  ? CefEventFlags.ControlDown : 0) |
+                    (e.modifiers.HasFlag(EventModifiers.Command)  ? CefEventFlags.CommandDown : 0) |
+                    (e.modifiers.HasFlag(EventModifiers.Alt)      ? CefEventFlags.AltDown     : 0) |
+                    (e.modifiers.HasFlag(EventModifiers.Shift)    ? CefEventFlags.ShiftDown   : 0);
+
+                if (e.type == EventType.KeyDown)
+                {
+                    ev.EventType = CefKeyEventType.KeyDown;
+                    cefClient.SendKey(ev);
+                }
+                else if (e.type == EventType.KeyUp)
+                {
+                    ev.EventType = CefKeyEventType.Char;
+                    cefClient.SendKey(ev);
+                    ev.EventType = CefKeyEventType.KeyUp;
+                    cefClient.SendKey(ev);
+                }
+            }
+        }
 #endif
     }
 }

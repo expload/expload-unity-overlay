@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -23,13 +24,16 @@ namespace Expload
 
         private CefBrowserHost sHost;
 
-        public OffscreenCEFClient(int windowWidth, int windowHeight, bool hideScrollbars, Texture2D texture)
+        private OffscreenCEF behaviour;
+
+        public OffscreenCEFClient(int windowWidth, int windowHeight, bool hideScrollbars, Texture2D texture, OffscreenCEF behaviour)
         {
             this._texture = texture;
             this._windowWidth = windowWidth;
             this._windowHeight = windowHeight;
             this._loadHandler = new OffscreenLoadHandler(this, hideScrollbars);
             this._renderHandler = new OffscreenRenderHandler(this);
+            this.behaviour = behaviour;
 
             this.sPixelBuffer = new byte[windowWidth * windowHeight * 4];
 
@@ -139,6 +143,22 @@ namespace Expload
 
                 if (frame.IsMain)
                     Debug.LogFormat("START: {0}", browser.GetMainFrame().Url);
+            }
+
+            protected override void OnLoadError(CefBrowser browser, CefFrame frame, CefErrorCode errorCode, string errorText, string failedUrl)
+            {
+                if (frame.IsMain)
+                {
+                    Debug.LogFormat("ERROR: {0}, {1}, {2}", errorCode, errorText, failedUrl);
+
+                    this.client.behaviour.StartCoroutine(RetryConnecting(browser));
+                }
+            }
+
+            private IEnumerator RetryConnecting(CefBrowser browser)
+            {
+                yield return new WaitForSeconds(2);
+                browser.Reload();
             }
 
             protected override void OnLoadEnd(CefBrowser browser, CefFrame frame, int httpStatusCode)
