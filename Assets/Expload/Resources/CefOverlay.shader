@@ -2,8 +2,7 @@
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
-		_Transparency("Transparancy", Range(0.0, 1.0)) = 1.0
+		[HideInInspector]_MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
     {

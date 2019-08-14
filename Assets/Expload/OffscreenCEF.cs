@@ -45,7 +45,7 @@ namespace Expload
             this.BrowserTexture.Apply();
 
             this.GetComponent<RawImage>().texture = this.BrowserTexture;
-            Material mat = Resources.Load<Material>("Expload/ExploadOverlay");
+            Material mat = Resources.Load<Material>("ExploadOverlay");
             this.GetComponent<RawImage>().material = mat;
         }
 
