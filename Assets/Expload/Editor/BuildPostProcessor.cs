@@ -26,7 +26,7 @@ namespace Expload.UnityEditor
             ////////////////////////////////////////////////////////////////
 
             // Get the source directory (Assets/Plugins or Assets/Plugins/x86 or Assets/Plugins/x86_64).
-            string srcPluginsFolderPrefix = string.Format("{0}/{1}", Application.dataPath, "Plugins");
+            string srcPluginsFolderPrefix = string.Format("{0}/{1}", Application.dataPath, "Expload/Plugins");
 
             switch (target)
             {
