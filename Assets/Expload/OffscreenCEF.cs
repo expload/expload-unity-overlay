@@ -13,7 +13,7 @@ namespace Expload
     public class OffscreenCEF : MonoBehaviour
     {
         [SerializeField]
-        private string url = "http://localhost:8087/ui/overlay/";
+        private string overlayUrl = "http://localhost:8087/ui/overlay-transparent/";
 
         [Space]
         [SerializeField]
@@ -117,7 +117,7 @@ namespace Expload
             );
 
             // Start up the browser instance.
-            CefBrowserHost.CreateBrowser(cefWindowInfo, this.cefClient, cefBrowserSettings, string.IsNullOrEmpty(this.url) ? "http://www.google.com" : this.url);
+            CefBrowserHost.CreateBrowser(cefWindowInfo, this.cefClient, cefBrowserSettings, string.IsNullOrEmpty(this.overlayUrl) ? "http://www.google.com" : this.overlayUrl);
         }
 
         static Thread mainThread = Thread.CurrentThread;
